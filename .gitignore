@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+data/emporio.db
+.DS_Store
+.idea/
+.vscode/
+Rodrigo*.pdf
+desafio_tecnico_ai_eng_artefact.pdf
