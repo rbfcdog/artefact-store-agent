@@ -24,7 +24,7 @@ flowchart LR
     P & R --> DB
 ```
 
-![web chat - the agent in action](interface/docs/screenshot.png)
+![web chat - the agent in action](interface/docs/screenshot-v2.png)
 
 ## Quickstart
 
