@@ -29,7 +29,7 @@ Requirements: Python ≥ 3.11, [uv](https://docs.astral.sh/uv/), an OpenAI API k
 cd api
 uv sync
 cp .env.example .env        # then edit: OPENAI_API_KEY=sk-...
-                            # OPENAI_MODEL is optional (default: gpt-4o-mini)
+                            # OPENAI_MODEL is optional (default: gpt-4o)
 uv run scripts/build_db.py  # CSVs + policy PDF -> data/emporio.db
 ```
 
@@ -82,7 +82,7 @@ The architectural choices of the project follow the rationale below:
 | Decision | Rationale |
 |---|---|
 | **Framework(s) / agent approach** | Native function calling (hybrid) with two deterministic tools (`search_store` and `load_context`). Good architecture solves the problem with minimal complexity. A traditional relational database (SQLite + FTS5) coupled with function calling is vastly superior for e-commerce than forcing a vector database just for the trend. Looking up prices, tracking codes, or exact product names is structured data. If a customer searches for "Takamine GD20", FTS5 nails the exact match, whereas an embedding search might incorrectly prioritize a "Giannini" simply because its description is semantically closer to the user's phrasing. This is a mature, professional, fast, and highly deterministic engineering decision. |
-| **Model and Provider** | OpenAI `gpt-4o-mini` via API. Excellent cost-benefit, fast, and extremely reliable for structured tool calls and short replies in PT-BR. Configured via environment variable, allowing easy swapping. |
+| **Model and Provider** | OpenAI `gpt-4o` via API. Excellent cost-benefit, fast, and extremely reliable for structured tool calls and short replies in PT-BR. Configured via environment variable, allowing easy swapping. |
 | **Interaction interface** | Simple UI via **Streamlit** (web chat) and a secondary CLI. The architecture is fully **decoupled**: the agent logic runs on a FastAPI server and Streamlit simply consumes HTTP JSON endpoints, simulating the real contract of a backend serving WhatsApp or a mobile app. |
 | **Conversation history persistence** | Implemented via **SQLite** (`session.py`). Maintains the history of the latest interactions in the session, saving only the clean transcript (hiding internal tool calls) so the context sent to the LLM remains light, fast, and coherent throughout the conversation. |
 | **Data treatment** | A Python ETL script converts the 6 CSVs into a typed database with **FTS5** (full-text search). A critical treatment decision: **deadline calculations and policy expirations are done in Python**, never by the model (LLMs fail at date arithmetic). Order results already embed whether they are within the deadline. Prices are served already crossing active discounts. |
@@ -122,7 +122,7 @@ One design rule learned the hard way (see the test suite): **policy deadline
 math is computed by the tool, never by the model.** Every order returned by
 `search_store` carries a ready-made `deadlines` object - dates,
 `..._expired` flags and a `caminho_sugerido` with the next valid path per
-manual §4 - because a gpt-4o-mini asked to "compare dates" happily claimed a
+manual §4 - because a gpt-4o asked to "compare dates" happily claimed a
 February delivery was still inside a 7-day window in September. Deterministic
 reasoning belongs in Python; the LLM phrases it.
 
@@ -205,6 +205,10 @@ harness)** - the workflow was:
   sequence, including bugs caught along the way by smoke tests and by the
   test suite (e.g. a wrong timezone import and an ETL column mapping that
   silently emptied the product search index).
+- I continuously refactored the test suite and expanded the demo conversations
+  to increase coverage and complexity, pushing the conversational agent into
+  multi-turn edge cases (like expired deadlines mixed with out-of-scope requests)
+  to ensure the architecture held up under pressure.
 
 ## Repository layout
 

@@ -140,6 +140,23 @@ def _search_store(
                 out["aviso"] = ("nenhum produto cobre todos os termos da busca; resultados parciais. "
                                 "Carregue o catálogo (load_context, source=catalogo, sem section) "
                                 "para ver os nomes disponíveis e refaça a busca com o nome exato")
+        elif q:
+            import difflib
+            all_products = store.search_products(con, limit=1000)
+            suggestions = set()
+            q_lower = q.lower()
+            for p in all_products:
+                p_name_lower = p["name"].lower()
+                if difflib.SequenceMatcher(None, q_lower, p_name_lower).ratio() > 0.4:
+                    suggestions.add(p["name"])
+                else:
+                    for word in p_name_lower.split():
+                        if difflib.SequenceMatcher(None, q_lower, word).ratio() > 0.7:
+                            suggestions.add(p["name"])
+                            break
+            if suggestions:
+                out["produtos"] = []
+                out["aviso"] = f"nenhum produto encontrado. Nomes mais parecidos no catálogo: {', '.join(sorted(suggestions)[:5])}. Refaça a busca usando o nome exato."
         promos = _promos_for(con, q or None)
         if promos and q:
             out["promocoes"] = promos
