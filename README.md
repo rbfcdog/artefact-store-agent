@@ -24,7 +24,7 @@ flowchart LR
     P & R --> DB
 ```
 
-![web chat - o agente em ação](interface/docs/screenshot.png)
+![web chat - the agent in action](interface/docs/screenshot.png)
 
 ## Quickstart
 
@@ -81,21 +81,21 @@ The case specifies four agent capabilities; each maps directly to a concrete imp
 
 Example conversations covering all five paths live in [`conversations/`](conversations/).
 
-## Decisões Técnicas
+## Technical Decisions
 
-As escolhas arquiteturais do projeto seguem o racional abaixo:
+The architectural choices of the project follow the rationale below:
 
-| Decisão | Justificativa |
+| Decision | Rationale |
 |---|---|
-| **Framework(s) / abordagem do agente** | Native function calling (híbrido) com duas ferramentas determinísticas (`search_store` e `load_context`). Escolhido sobre ReAct puro (function calling nativo da OpenAI é mais confiável e valida schemas) e sobre geração de SQL (evita risco de injeção e alucinação de formato para um catálogo fixo). Sem RAG/embeddings: busca por FTS5 (palavra-chave) e context loading inteiro se provaram mais precisos. |
-| **Modelo e Provedor** | OpenAI `gpt-4o-mini` via API. Excelente custo-benefício, rápido e extremamente confiável para chamadas de ferramentas estruturadas e respostas curtas em PT-BR. Configurado via variável de ambiente, permitindo troca fácil. |
-| **Interface de interação** | UI simples via **Streamlit** (chat web) e uma CLI secundária. A arquitetura é totalmente **desacoplada**: a lógica do agente roda em um servidor FastAPI e o Streamlit apenas consome endpoints HTTP JSON, simulando o contrato real de um backend que atenderia WhatsApp ou app mobile. |
-| **Persistência do histórico de conversa** | Implementado via **SQLite** (`session.py`). Mantém o histórico das últimas interações na sessão, salvando apenas a transcrição limpa (ocultando os tool calls internos) para que o contexto enviado ao LLM permaneça leve, rápido e coerente ao longo da conversa. |
-| **Tratamento dos dados** | Script ETL Python converte os 6 CSVs em um banco tipado com **FTS5** (busca full-text). Uma decisão crítica de tratamento: **cálculos de prazo e expiração de políticas são feitos em Python**, nunca pelo modelo (LLMs erram aritmética de datas). Resultados de pedidos já embutem se estão dentro do prazo. Preços são servidos já cruzando descontos ativos. |
+| **Framework(s) / agent approach** | Native function calling (hybrid) with two deterministic tools (`search_store` and `load_context`). Chosen over pure ReAct (OpenAI's native function calling is more reliable and validates schemas) and over SQL generation (avoids injection risks and format hallucination for a fixed catalog). No RAG/embeddings: FTS5 keyword search and full context loading proved more accurate. |
+| **Model and Provider** | OpenAI `gpt-4o-mini` via API. Excellent cost-benefit, fast, and extremely reliable for structured tool calls and short replies in PT-BR. Configured via environment variable, allowing easy swapping. |
+| **Interaction interface** | Simple UI via **Streamlit** (web chat) and a secondary CLI. The architecture is fully **decoupled**: the agent logic runs on a FastAPI server and Streamlit simply consumes HTTP JSON endpoints, simulating the real contract of a backend serving WhatsApp or a mobile app. |
+| **Conversation history persistence** | Implemented via **SQLite** (`session.py`). Maintains the history of the latest interactions in the session, saving only the clean transcript (hiding internal tool calls) so the context sent to the LLM remains light, fast, and coherent throughout the conversation. |
+| **Data treatment** | A Python ETL script converts the 6 CSVs into a typed database with **FTS5** (full-text search). A critical treatment decision: **deadline calculations and policy expirations are done in Python**, never by the model (LLMs fail at date arithmetic). Order results already embed whether they are within the deadline. Prices are served already crossing active discounts. |
 
-### Detalhes complementares
+### Additional details
 
-Abaixo estão os detalhes aprofundados sobre a implementação das ferramentas e testes.
+Below are in-depth details on the implementation of tools and tests.
 
 ### Manual: context loading, not ranking
 
