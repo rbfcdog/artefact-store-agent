@@ -18,36 +18,45 @@ SCENARIOS: list[tuple[str, list[str]]] = [
         "01-catalogo-e-orcamento.md",
         [
             "Oi! Quais opções de violões vocês têm custando até R$1000?",
-            "E o mais barato desses, qual é? É bom pra quem tá começando?",
+            "Entendi. O Tagima Memphis e o Giannini têm muita diferença? Qual você indicaria pra quem quer tocar rock?",
+            "Legal, vou ficar com o Giannini! Se eu quiser comprar ele junto com uma bateria acústica, tem desconto comprando os dois?",
+            "Perfeito. E quanto tempo costuma demorar pra chegar aqui no centro de Campo Grande?",
         ],
     ),
     (
         "02-informacoes-da-loja.md",
         [
-            "Qual o endereço de vocês?",
-            "Vocês abrem no sábado? Que horas?",
+            "Oi! Vocês têm loja física ou vendem só online?",
+            "Legal, e vocês abrem no sábado? Eu queria passar aí pra testar uns teclados.",
+            "Maravilha. Tem estacionamento perto ou é muito ruim de parar aí na rua da loja?",
+            "Entendi. Se eu for de manhã, consigo sair com o instrumento na hora ou tem que esperar vir do estoque?",
         ],
     ),
     (
         "03-preco-e-pagamento.md",
         [
-            "Quanto custa o Takamine GD20?",
-            "Se eu pagar no PIX tem desconto? E em quantas vezes posso parcelar?",
+            "Olá! Quanto custa o Takamine GD20 e o teclado Yamaha P-45?",
+            "Se eu pagar no PIX, tem desconto no Takamine?",
+            "E se eu quiser parcelar o teclado, qual é o máximo de vezes que dá pra fazer sem juros? Aceitam Elo?",
+            "Ótimo! E tem alguma promoção rolando para quem compra na primeira vez pelo site?",
         ],
     ),
     (
         "04-devolucao-arrependimento.md",
         [
             "Me arrependi da minha compra, posso devolver meu pedido?",
-            "Claro! Meu telefone é (67) 99812-3456",
+            "Meu telefone é (67) 99812-3456",
+            "Poxa, que pena que já passou do prazo. Mas então, como eu faço pra comprar uma palheta e um cabo de guitarra com vocês?",
+            "Entendi, vocês só trabalham com os instrumentos mesmo. Tem algum modelo da Fender chegando?",
         ],
     ),
     (
         "05-fora-do-escopo.md",
         [
-            "Vocês têm cabo de guitarra e palheta?",
-            "Entendi. E aí, o que você acha do jogo do Brasil ontem?",
-            "Certo! Vocês têm algum violão da Fender?",
+            "Vocês têm bateria da marca Pearl?",
+            "Ah, uma pena. Mas me diz uma coisa, o que você achou do jogo do Brasil ontem?",
+            "Hahaha tudo bem. Queria saber também como faço pra consertar o braço do meu violão, vocês têm luthier?",
+            "Beleza. E aquele meu pedido 14, como tá o status dele?",
         ],
     ),
 ]

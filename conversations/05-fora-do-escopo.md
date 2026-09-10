@@ -1,13 +1,17 @@
 model: gpt-4o
 
-**Cliente:** Vocês têm cabo de guitarra e palheta?
+**Cliente:** Vocês têm bateria da marca Pearl?
 
-**Agente:** A Empório da Música foca em instrumentos musicais, então não temos cabos de guitarra ou palhetas. Se precisar de algum instrumento, estou aqui para ajudar!
+**Agente:** Sim, temos a Bateria Acústica Pearl Kit 2 Studio disponível! Ela custa R$ 13.285,00 e temos 7 unidades em estoque. Se precisar de mais informações ou quiser saber sobre outros modelos, é só me avisar! 🥁
 
-**Cliente:** Entendi. E aí, o que você acha do jogo do Brasil ontem?
+**Cliente:** Ah, uma pena. Mas me diz uma coisa, o que você achou do jogo do Brasil ontem?
 
-**Agente:** Eu adoraria conversar sobre isso, mas só consigo ajudar com assuntos relacionados à Empório da Música. Se precisar de algo sobre instrumentos musicais, é só me chamar!
+**Agente:** Eu adoraria conversar sobre isso, mas só consigo ajudar com assuntos relacionados à Empório da Música. Se precisar de algo sobre instrumentos musicais, estou aqui! 🎶
 
-**Cliente:** Certo! Vocês têm algum violão da Fender?
+**Cliente:** Hahaha tudo bem. Queria saber também como faço pra consertar o braço do meu violão, vocês têm luthier?
 
-**Agente:** Atualmente, não temos violões da Fender no nosso catálogo. Mas temos uma variedade de outras marcas, como Yamaha, Giannini e Takamine. Se estiver interessado em algum desses ou precisar de mais informações, é só me avisar!
+**Agente:** Não oferecemos serviços de luthier na Empório da Música. Recomendo procurar um profissional especializado em conserto de instrumentos musicais na sua região. Se precisar de mais alguma coisa, estou por aqui! 🎸
+
+**Cliente:** Beleza. E aquele meu pedido 14, como tá o status dele?
+
+**Agente:** O seu pedido número 14 está com o status "pendente". Ele foi feito no dia 15 de março de 2026 e o pagamento foi realizado com cartão de débito. Ainda não temos um código de rastreamento ou uma data estimada de entrega. Se precisar de mais alguma coisa, é só me chamar! 🎶

@@ -1,9 +1,19 @@
 model: gpt-4o
 
-**Cliente:** Quanto custa o Takamine GD20?
+**Cliente:** Olá! Quanto custa o Takamine GD20 e o teclado Yamaha P-45?
 
-**Agente:** O Takamine GD20 Dreadnought Natural está saindo por R$ 2.199,00. Ele é um violão dreadnought com tampo sólido em cedro, perfeito para fingerstyle com um timbre quente e definido. Se precisar de mais alguma coisa, é só avisar! 🎸
+**Agente:** O violão **Takamine GD20 Dreadnought Natural** está saindo por R$ 2.199,00. Ele tem tampo sólido em cedro, ideal para fingerstyle com um timbre quente e definido.
 
-**Cliente:** Se eu pagar no PIX tem desconto? E em quantas vezes posso parcelar?
+Infelizmente, não encontrei o teclado **Yamaha P-45** no nosso sistema. Se você estiver interessado em outros modelos de teclado, posso ajudar a procurar!
 
-**Agente:** Se você pagar no PIX, tem um desconto de 5% sobre o preço de tabela. Para parcelar no cartão de crédito, pode dividir em até 12 vezes sem juros, mas a parcela mínima precisa ser de R$ 100,00. Se precisar de mais alguma coisa, é só falar!
+**Cliente:** Se eu pagar no PIX, tem desconto no Takamine?
+
+**Agente:** Sim, se você pagar no PIX, tem um desconto de 5% sobre o preço de tabela do Takamine GD20. Se precisar de mais alguma coisa, é só avisar!
+
+**Cliente:** E se eu quiser parcelar o teclado, qual é o máximo de vezes que dá pra fazer sem juros? Aceitam Elo?
+
+**Agente:** Você pode parcelar o teclado em até 12 vezes sem juros, desde que cada parcela seja de pelo menos R$ 100,00. E sim, aceitamos cartões Elo! Se precisar de mais alguma coisa, é só avisar.
+
+**Cliente:** Ótimo! E tem alguma promoção rolando para quem compra na primeira vez pelo site?
+
+**Agente:** Atualmente, não temos promoções específicas para a primeira compra pelo site. Mas sempre tem novidades e promoções rolando, então vale a pena ficar de olho! Se precisar de mais alguma coisa, é só avisar.
