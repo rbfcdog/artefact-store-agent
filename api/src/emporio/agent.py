@@ -2,7 +2,7 @@
 from __future__ import annotations
 import datetime as _dt
 import json
-import sqlite3
+import logging
 import threading
 from pathlib import Path
 from typing import Any
@@ -70,6 +70,7 @@ class Agent:
                             "content": json.dumps(result, ensure_ascii=False, default=str),
                         })
             except Exception:
+                logging.exception("falha na chamada ao provedor do modelo")
                 reply = ""
 
             if not reply:
