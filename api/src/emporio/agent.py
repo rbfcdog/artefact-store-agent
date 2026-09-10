@@ -63,11 +63,17 @@ class Agent:
 
                     messages.append(choice)
                     for call in choice.tool_calls:
-                        result = tools.run_tool(self.con, call.function.name, call.function.arguments)
+                        try:
+                            result = tools.run_tool(self.con, call.function.name, call.function.arguments)
+                            content = json.dumps(result, ensure_ascii=False, default=str)
+                        except Exception as e:
+                            logging.exception(f"Tool execution failed: {call.function.name}")
+                            content = json.dumps({"error": str(e)}, ensure_ascii=False)
+
                         messages.append({
                             "role": "tool",
                             "tool_call_id": call.id,
-                            "content": json.dumps(result, ensure_ascii=False, default=str),
+                            "content": content,
                         })
             except Exception:
                 logging.exception("falha na chamada ao provedor do modelo")

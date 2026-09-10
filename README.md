@@ -205,13 +205,6 @@ harness)** - the workflow was:
   sequence, including bugs caught along the way by smoke tests and by the
   test suite (e.g. a wrong timezone import and an ETL column mapping that
   silently emptied the product search index).
-- Conversations with the agent, the README narrative and all judgment calls
-  (persona rules mapped to manual sections, assumptions above) are mine;
-  the AI accelerated the typing, not the decisions.
-
-This is disclosed here because the case asks for the workflow - and because
-reviewing AI-generated code critically (including rejecting and rewriting
-parts of it) is, I believe, exactly the skill this role should exercise.
 
 ## Repository layout
 
