@@ -8,7 +8,7 @@ from emporio import Agent
 from emporio.prompts import PERSONA_NAME
 
 BANNER = f"""
-🎸 Empório da Música - atendimento com {PERSONA_NAME}
+Empório da Música - atendimento com {PERSONA_NAME}
 Comandos: /sair encerra · /nova inicia nova conversa
 """
 
@@ -36,12 +36,12 @@ def main() -> None:
         if message.lower() in ("/nova", "/novo"):
             agent.reset(session_id)
             session_id = uuid.uuid4().hex[:8]
-            print(f"{PERSONA_NAME} > (nova conversa) Oi! Como posso ajudar? 🎵")
+            print(f"{PERSONA_NAME} > (nova conversa) Oi! Como posso ajudar?")
             continue
         reply = agent.chat(session_id, message)
         print(f"\n{PERSONA_NAME} > {reply}\n")
 
-    print(f"\nAté a próxima! 🎶 (sessão {session_id})")
+    print(f"\nAté a próxima! (sessão {session_id})")
 
 if __name__ == "__main__":
     main()

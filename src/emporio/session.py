@@ -2,9 +2,6 @@
 from __future__ import annotations
 
 import sqlite3
-from typing import Any
-
-from emporio import store
 
 HISTORY_LIMIT = 24
 
@@ -34,12 +31,3 @@ def clear_session(con: sqlite3.Connection, session_id: str) -> None:
     con.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))
     con.commit()
 
-def _demo() -> None:
-    con = store.connect()
-    append_message(con, "s1", "user", "oi")
-    append_message(con, "s1", "assistant", "olá!")
-    print(history(con, "s1"))
-    clear_session(con, "s1")
-
-if __name__ == "__main__":
-    _demo()

@@ -69,7 +69,7 @@ def test_history_is_replayed_and_reset_clears(tmp_path):
 
     client = ScriptedClient([
         _msg(content="Oi! Em que posso ajudar?"),
-        _msg(content="De nada! 🎵"),
+        _msg(content="De nada!"),
     ])
     agent = Agent(db_path=db, client=client.chat())
     agent.chat("s2", "oi")

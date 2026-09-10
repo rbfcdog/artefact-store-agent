@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from emporio import Agent
-from emporio.prompts import PERSONA_NAME
+
 
 app = FastAPI(title="Empório da Música - atendimento")
 agent = Agent()

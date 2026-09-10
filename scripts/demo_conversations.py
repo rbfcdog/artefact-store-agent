@@ -8,9 +8,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from emporio import session, store
+from emporio import session
 from emporio.agent import Agent
-from emporio.config import OPENAI_MODEL, STORE_TZ
+from emporio.config import OPENAI_MODEL
 from emporio.prompts import PERSONA_NAME
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "conversations"
@@ -58,13 +58,11 @@ SCENARIOS: list[tuple[str, str, list[str]]] = [
     ),
 ]
 
-def run_scenario(agent: Agent, con, slug: str, messages: list[str]) -> str:
+def run_scenario(agent: Agent, slug: str, messages: list[str]) -> str:
     session_id = f"demo-{slug}"
     agent.reset(session_id)
     for message in messages:
-        print(f"  você > {message}")
-        reply = agent.chat(session_id, message)
-        print(f"  {PERSONA_NAME} > {reply[:80]}...")
+        agent.chat(session_id, message)
     return session_id
 
 def dump(con, session_id: str, title: str, model: str) -> str:
@@ -91,12 +89,10 @@ def main() -> None:
     OUT_DIR.mkdir(exist_ok=True)
     for filename, title, messages in SCENARIOS:
         slug = filename.split("-", 1)[0]
-        print(f"\n=== {title}")
-        session_id = run_scenario(agent, agent.con, slug, messages)
+        session_id = run_scenario(agent, slug, messages)
         text = dump(agent.con, session_id, title, args.model)
         (OUT_DIR / filename).write_text(text, encoding="utf-8")
-        print(f"  written: conversations/{filename}")
-    _ = STORE_TZ
+        print(f"written: conversations/{filename}")
 
 if __name__ == "__main__":
     main()

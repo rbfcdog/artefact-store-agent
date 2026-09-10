@@ -70,7 +70,7 @@ class Agent:
                     })
 
             reply = ("Desculpa, tive um problema pra consultar nossos sistemas agora. "
-                     "Pode tentar de novo em instantes? 🎵")
+                     "Pode tentar de novo em instantes?")
             session.append_message(self.con, session_id, "assistant", reply)
             return reply
 

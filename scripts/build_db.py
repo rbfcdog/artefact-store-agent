@@ -19,11 +19,6 @@ def main() -> None:
     print(f"built {DB_PATH}")
     for table, n in counts.items():
         print(f"  {table:>16}: {n}")
-    active = store.active_promotions(con)
-    print(f"  {'active promos':>16}: {len(active)}")
-    for p in active:
-        print(f"    - {p['product_name']}: -{p['discount_percent']}% "
-              f"(R$ {p['price_brl']:.2f} → R$ {p['promo_price_brl']:.2f})")
 
 if __name__ == "__main__":
     main()
