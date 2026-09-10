@@ -31,24 +31,34 @@ flowchart LR
 Requirements: Python ≥ 3.11, [uv](https://docs.astral.sh/uv/), an OpenAI API key.
 
 ```bash
-# 1. install (all Python lives in api/ - run everything from there)
+# 1. install and configure (one time)
 cd api
 uv sync
-
-# 2. configure the model provider
 cp .env.example .env        # then edit: OPENAI_API_KEY=sk-...
                             # OPENAI_MODEL is optional (default: gpt-4o-mini)
+uv run scripts/build_db.py  # CSVs + policy PDF -> data/emporio.db
+```
 
-# 3. build the database (CSVs + policy PDF -> data/emporio.db)
-uv run scripts/build_db.py
-
-# 4. run the API (terminal 1)
+```bash
+# 2. terminal 1 - the API (leave it running)
+cd api
 uv run uvicorn app.server:app --port 8080
+```
 
-# 5. run the web chat (terminal 2) - opens at http://localhost:8501
+```bash
+# 3. terminal 2 - the web chat, opens at http://localhost:8501
+cd api
 uv run --group ui streamlit run ../interface/app.py
+```
 
+The two terminals must both stay running: the web chat talks to the API on
+port 8080 (if the chat replies that it cannot reach the server, terminal 1 is
+not running). The command path ends in `app.py` - if streamlit complains that
+the file has no extension, a stray character slipped into the pasted command.
+
+```bash
 # tests (offline - no API key needed)
+cd api
 uv run pytest tests/ -q
 ```
 
