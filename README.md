@@ -65,8 +65,10 @@ guesswork:
   product or category, phone, e-mail, order number, tracking code or
   customer name.
 - `load_context` - context loading, Anthropic style: the policy manual whole
-  or by full section, a whole product category, or the active promotions.
-  Content lands verbatim in the context window instead of being ranked.
+  or by full section, the full product index (every name, category and
+  effective price, so the model searches with the right key), or the active
+  promotions. Content lands verbatim in the context window instead of being
+  ranked.
 
 ### Agent approach - native function calling over a tool layer (hybrid)
 

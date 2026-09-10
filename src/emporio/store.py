@@ -89,11 +89,6 @@ CREATE VIRTUAL TABLE IF NOT EXISTS products_fts USING fts5(
     tokenize='unicode61 remove_diacritics 2'
 );
 
-CREATE VIRTUAL TABLE IF NOT EXISTS policy_fts USING fts5(
-    section, text,
-    content='',
-    tokenize='unicode61 remove_diacritics 2'
-);
 
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items(order_id);
 CREATE INDEX IF NOT EXISTS idx_orders_customer ON orders(customer_id);
@@ -205,11 +200,19 @@ def load_operational_data(con: sqlite3.Connection) -> dict[str, int]:
     return counts
 
 def rebuild_products_fts(con: sqlite3.Connection) -> None:
-    con.execute("DELETE FROM products_fts")
+    con.execute("DROP TABLE IF EXISTS products_fts")
+    con.execute(
+        """CREATE VIRTUAL TABLE products_fts USING fts5(
+               name, description, category,
+               content='',
+               tokenize='unicode61 remove_diacritics 2'
+        )"""
+    )
     con.execute(
         """INSERT INTO products_fts(rowid, name, description, category)
            SELECT p.product_id, p.name, p.description, c.name
-           FROM products p JOIN categories c ON c.category_id = p.category_id""")
+           FROM products p JOIN categories c ON p.category_id = c.category_id"""
+    )
     con.commit()
 
 def rebuild_products_fts(con: sqlite3.Connection) -> None:

@@ -126,15 +126,20 @@ def _search_store(
             limit=int(limit),
         )
         if hits:
-            terms = [t for t in re.findall(r"\w+", normalize_text(q)) if len(t) >= 2]
-            covering = [h for h in hits
-                        if terms and all(t in normalize_text(h["name"]) for t in terms)]
+            qwords = {t for t in re.findall(r"\w+", normalize_text(q)) if len(t) >= 2}
+            def name_words(name: str) -> set[str]:
+                return {t for t in re.findall(r"\w+", normalize_text(name)) if len(t) >= 2}
+            covering = [h for h in hits if qwords and qwords <= name_words(h["name"])]
             payloads = []
             for p in hits:
                 full = len(hits) == 1 or (len(covering) == 1
                                           and p["product_id"] == covering[0]["product_id"])
                 payloads.append(_product_full(p) if full else _product_brief(p))
             out["produtos"] = payloads
+            if qwords and not covering:
+                out["aviso"] = ("nenhum produto cobre todos os termos da busca; resultados parciais. "
+                                "Carregue o catálogo (load_context, source=catalogo, sem section) "
+                                "para ver os nomes disponíveis e refaça a busca com o nome exato")
         promos = _promos_for(con, q or None)
         if promos and q:
             out["promocoes"] = promos
@@ -192,7 +197,14 @@ def _load_context(
             return {"categoria": section,
                     "produtos": [_product_brief(p) for p in rows],
                     "total": len(rows)}
-        return {"categorias": store.list_categories(con)}
+        rows = store.search_products(con, limit=200)
+        return {"categorias": store.list_categories(con),
+                "produtos": [{"nome": p["name"], "categoria": p["category"],
+                              "preco_brl": p["price_brl"], "promo": p["promo"]}
+                             for p in rows],
+                "nota": ("índice completo do catálogo (nome, categoria, preço vigente); "
+                         "para detalhes, estoque e promoção, refaça a busca no search_store "
+                         "com o nome exato do produto")}
     if source == "promocoes":
         return {"promocoes": _promos_for(con, None)}
     return {"error": f"fonte desconhecida: {source}"}

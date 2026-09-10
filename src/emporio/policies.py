@@ -70,7 +70,6 @@ def load_policy_chunks(con: sqlite3.Connection, pdf_path: Path) -> int:
     con.execute("DELETE FROM policy_chunks")
     for chunk_id, (section, text) in enumerate(extract_chunks(pdf_path), start=1):
         con.execute("INSERT INTO policy_chunks VALUES (?, ?, ?)", (chunk_id, section, text))
-    con.execute("DROP TABLE IF EXISTS policy_fts")
     con.commit()
     return con.execute("SELECT COUNT(*) FROM policy_chunks").fetchone()[0]
 

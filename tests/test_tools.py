@@ -72,10 +72,20 @@ def test_load_manual_keyword_hits_body_text(con):
     body = "\n".join(s["texto"] for s in out["secoes"])
     assert "14 de maio" in body.lower()
 
-def test_load_catalogo_category(con):
-    out = run_tool(con, "load_context", '{"source": "catalogo", "section": "violões"}')
-    assert out["total"] >= 5
-    assert all(p["category"] == "Violões" for p in out["produtos"])
+def test_load_catalogo_full_index(con):
+    out = run_tool(con, "load_context", '{"source": "catalogo"}')
+    assert out["categorias"]
+    assert len(out["produtos"]) >= 60
+    assert all({"nome", "categoria", "preco_brl"} <= set(p) for p in out["produtos"])
+    names = " ".join(p["nome"].lower() for p in out["produtos"])
+    assert "takamine" in names
+
+def test_partial_product_match_warns_to_load_catalog(con):
+    out = run_tool(con, "search_store", '{"query": "Yamaha Stratocaster"}')
+    assert out["produtos"]
+    assert all("Yamaha" in p["name"] for p in out["produtos"])
+    assert all("Stratocaster" not in p["name"] for p in out["produtos"])
+    assert "catálogo" in out["aviso"]
 
 def test_load_promocoes(con):
     out = run_tool(con, "load_context", '{"source": "promocoes"}')
