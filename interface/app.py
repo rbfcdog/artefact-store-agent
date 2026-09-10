@@ -34,7 +34,6 @@ if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": GREETING}]
 
 st.title("Empório da Música")
-st.caption("Atendimento virtual - instrumentos musicais em Campo Grande/MS")
 st.button("Nova conversa", on_click=new_conversation)
 
 for message in st.session_state.messages:
@@ -47,22 +46,23 @@ if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-    try:
-        response = httpx.post(
-            f"{API_URL}/api/chat",
-            json={
-                "session_id": st.session_state.session_id,
-                "message": prompt,
-            },
-            timeout=60,
-        )
-        response.raise_for_status()
-        reply = response.json()["reply"]
-    except httpx.HTTPError:
-        reply = (
-            "Não consegui falar com o servidor de atendimento. "
-            "Confira se a API está rodando e tente de novo."
-        )
-    st.session_state.messages.append({"role": "assistant", "content": reply})
     with st.chat_message("assistant"):
+        with st.spinner(""):
+            try:
+                response = httpx.post(
+                    f"{API_URL}/api/chat",
+                    json={
+                        "session_id": st.session_state.session_id,
+                        "message": prompt,
+                    },
+                    timeout=60,
+                )
+                response.raise_for_status()
+                reply = response.json()["reply"]
+            except httpx.HTTPError:
+                reply = (
+                    "Não consegui falar com o servidor de atendimento. "
+                    "Confira se a API está rodando e tente de novo."
+                )
         st.markdown(reply)
+    st.session_state.messages.append({"role": "assistant", "content": reply})
