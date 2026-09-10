@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
@@ -12,29 +11,25 @@ from emporio import session
 from emporio.agent import Agent
 from emporio.config import OPENAI_MODEL
 
+OUT_DIR = Path(__file__).resolve().parents[2] / "conversations"
 
-OUT_DIR = Path(__file__).resolve().parent.parent / "conversations"
-
-SCENARIOS: list[tuple[str, str, list[str]]] = [
+SCENARIOS: list[tuple[str, list[str]]] = [
     (
         "01-catalogo-e-orcamento.md",
-        "Catálogo com orçamento - consulta em tempo real",
         [
             "Oi! Quais opções de violões vocês têm custando até R$1000?",
-            "E o mais barato dele, qual é? Ele é bom pra quem tá começando?",
+            "E o mais barato desses, qual é? É bom pra quem tá começando?",
         ],
     ),
     (
         "02-informacoes-da-loja.md",
-        "Informações gerais da loja - políticas",
         [
-            "Oi, qual o endereço de vocês?",
-            "E vocês abrem no sábado?",
+            "Qual o endereço de vocês?",
+            "Vocês abrem no sábado? Que horas?",
         ],
     ),
     (
         "03-preco-e-pagamento.md",
-        "Preço de produto específico + condições de pagamento",
         [
             "Quanto custa o Takamine GD20?",
             "Se eu pagar no PIX tem desconto? E em quantas vezes posso parcelar?",
@@ -42,7 +37,6 @@ SCENARIOS: list[tuple[str, str, list[str]]] = [
     ),
     (
         "04-devolucao-arrependimento.md",
-        "Não trivial: devolução - dados do pedido + política aplicada",
         [
             "Me arrependi da minha compra, posso devolver meu pedido?",
             "Claro! Meu telefone é (67) 99812-3456",
@@ -50,13 +44,14 @@ SCENARIOS: list[tuple[str, str, list[str]]] = [
     ),
     (
         "05-fora-do-escopo.md",
-        "Fora do escopo: acessórios e assunto não relacionado",
         [
-            "Vocês têm corda de violão e palheta?",
-            "E aí, o que você acha do jogo do Brasil ontem?",
+            "Vocês têm cabo de guitarra e palheta?",
+            "Entendi. E aí, o que você acha do jogo do Brasil ontem?",
+            "Certo! Vocês têm algum violão da Fender?",
         ],
     ),
 ]
+
 
 def run_scenario(agent: Agent, slug: str, messages: list[str]) -> str:
     session_id = f"demo-{slug}"
@@ -65,20 +60,15 @@ def run_scenario(agent: Agent, slug: str, messages: list[str]) -> str:
         agent.chat(session_id, message)
     return session_id
 
-def dump(con, session_id: str, title: str, model: str) -> str:
-    lines = [
-        f"# {title}",
-        "",
-        f"- session: `{session_id}` · model: `{model}` · "
-        f"generated: {datetime.now().strftime('%Y-%m-%d')}",
-        "- transcript dumped verbatim from the persisted session",
-        "",
-    ]
+
+def dump(con, session_id: str, model: str) -> str:
+    lines = [f"model: {model}", ""]
     for m in session.history(con, session_id):
         who = "Cliente" if m["role"] == "user" else "Agente"
         lines.append(f"**{who}:** {m['content']}")
         lines.append("")
     return "\n".join(lines)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -87,12 +77,13 @@ def main() -> None:
 
     agent = Agent(model=args.model)
     OUT_DIR.mkdir(exist_ok=True)
-    for filename, title, messages in SCENARIOS:
+    for filename, messages in SCENARIOS:
         slug = filename.split("-", 1)[0]
         session_id = run_scenario(agent, slug, messages)
-        text = dump(agent.con, session_id, title, args.model)
+        text = dump(agent.con, session_id, args.model)
         (OUT_DIR / filename).write_text(text, encoding="utf-8")
         print(f"written: conversations/{filename}")
+
 
 if __name__ == "__main__":
     main()

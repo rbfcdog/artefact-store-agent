@@ -65,7 +65,21 @@ uv run pytest tests/ -q
 There is also a terminal client (`uv run python cli.py`) if you prefer a CLI; the
 web chat above is the intended way to interact with the agent.
 
-Example conversations live in [`api/conversations/`](api/conversations/).
+Example conversations live in [`conversations/`](conversations/).
+
+## Case requirements coverage
+
+The case specifies four agent capabilities; each maps directly to a concrete implementation decision:
+
+| Requirement | Implementation |
+|---|---|
+| **Persona aligned with the store's identity and tone** | System prompt (`api/src/emporio/prompts.py`) defines the agent as an informal but professional virtual attendant following the store's own service manual: WhatsApp-length replies, calling the customer by name, redirecting accessories, escalating complaints with empathy (§7.1, §7.3). Tone is baked into rules, not left to model defaults. |
+| **Respond based on available context** | The last 24 turns of each session are replayed in full at every call. Tool results land verbatim in the context window. The model never needs to recall a fact it was not explicitly given this turn. |
+| **Know when to consult data** | `search_store` covers every data question: product price/stock, order status, customer lookup, active promotions. A prompt rule makes it mandatory before any factual claim - the model cannot quote a price from memory. |
+| **Know when to consult policies** | `load_context` retrieves the policy manual by section number or keyword, or loads it whole when no section matches. A second prompt rule makes it mandatory for any policy answer (exchanges, returns, payment, hours, delivery). |
+| **Handle out-of-scope questions** | Rule 5 in the system prompt: off-domain requests (sport, weather, general chat) get a one-sentence friendly refusal and a redirect. Accessory requests (strings, picks, cables) are redirected by store policy, not by improvisation. The designed failure mode is graceful refusal. |
+
+Example conversations covering all five paths live in [`conversations/`](conversations/).
 
 ## Architecture and decisions
 
@@ -175,7 +189,7 @@ deadline math against order dates.
    policy deadlines against the real current date - e.g. a *right of
    repentance* request on an old order honestly comes back as expired, with
    the next valid path offered (warranty/fabricante). Conversation 4 in
-   [`api/conversations/`](api/conversations/) shows this end-to-end.
+   [`conversations/`](conversations/) shows this end-to-end.
 3. **Customer identity**: a WhatsApp number or name is enough to locate a
    registered customer; when names collide, the agent confirms the city before
    discussing orders. Contact data is masked in tool output (LGPD §9).
@@ -243,9 +257,9 @@ parts of it) is, I believe, exactly the skill this role should exercise.
 │   ├── scripts/build_db.py     # CSVs + PDF → data/emporio.db
 │   ├── cli.py                  # terminal client
 │   ├── tests/                  # offline suite (scripted LLM client)
-│   ├── conversations/          # example interactions (case deliverable)
 │   └── data/                   # case-provided sources (CSVs + policy PDF)
-└── interface/
-    ├── app.py                  # Streamlit web chat (talks to the API over HTTP)
-    └── docs/screenshot.png     # the web chat in action
+├── interface/
+│   ├── app.py                  # Streamlit web chat (talks to the API over HTTP)
+│   └── docs/screenshot.png     # the web chat in action
+└── conversations/              # five real example sessions (model + transcript only)
 ```
