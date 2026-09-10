@@ -1,11 +1,5 @@
 # AI customer-service agent for Empório da Música
 
-Artefact **AI Engineer – Full-Stack** technical case. A WhatsApp-style
-customer-service agent for *Empório da Música*, a musical-instrument store in
-Campo Grande/MS. It answers catalog, order and store-policy questions by
-**calling tools against real data** - it never quotes a price, a stock count
-or a return policy from memory.
-
 ```mermaid
 flowchart LR
     subgraph UI["UI layer (decoupled)"]
@@ -87,7 +81,7 @@ The architectural choices of the project follow the rationale below:
 
 | Decision | Rationale |
 |---|---|
-| **Framework(s) / agent approach** | Native function calling (hybrid) with two deterministic tools (`search_store` and `load_context`). Chosen over pure ReAct (OpenAI's native function calling is more reliable and validates schemas) and over SQL generation (avoids injection risks and format hallucination for a fixed catalog). No RAG/embeddings: FTS5 keyword search and full context loading proved more accurate. |
+| **Framework(s) / agent approach** | Native function calling (hybrid) with two deterministic tools (`search_store` and `load_context`). Good architecture solves the problem with minimal complexity. A traditional relational database (SQLite + FTS5) coupled with function calling is vastly superior for e-commerce than forcing a vector database just for the trend. Looking up prices, tracking codes, or exact product names is structured data. If a customer searches for "Takamine GD20", FTS5 nails the exact match, whereas an embedding search might incorrectly prioritize a "Giannini" simply because its description is semantically closer to the user's phrasing. This is a mature, professional, fast, and highly deterministic engineering decision. |
 | **Model and Provider** | OpenAI `gpt-4o-mini` via API. Excellent cost-benefit, fast, and extremely reliable for structured tool calls and short replies in PT-BR. Configured via environment variable, allowing easy swapping. |
 | **Interaction interface** | Simple UI via **Streamlit** (web chat) and a secondary CLI. The architecture is fully **decoupled**: the agent logic runs on a FastAPI server and Streamlit simply consumes HTTP JSON endpoints, simulating the real contract of a backend serving WhatsApp or a mobile app. |
 | **Conversation history persistence** | Implemented via **SQLite** (`session.py`). Maintains the history of the latest interactions in the session, saving only the clean transcript (hiding internal tool calls) so the context sent to the LLM remains light, fast, and coherent throughout the conversation. |
