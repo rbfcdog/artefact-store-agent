@@ -42,8 +42,8 @@ cp .env.example .env        # then edit: OPENAI_API_KEY=sk-...
 # 3. build the database (CSVs + policy PDF -> data/emporio.db)
 uv run scripts/build_db.py
 
-# 4. run the agent: web chat at http://localhost:8000
-uv run uvicorn app.server:app --port 8000
+# 4. run the agent: web chat at http://localhost:8080
+uv run uvicorn app.server:app --port 8080
 
 # tests (offline - no API key needed)
 uv run pytest tests/ -q
