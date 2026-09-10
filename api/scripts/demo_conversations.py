@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 from emporio import session
 from emporio.agent import Agent
 from emporio.config import OPENAI_MODEL
-from emporio.prompts import PERSONA_NAME
+
 
 OUT_DIR = Path(__file__).resolve().parent.parent / "conversations"
 
@@ -75,7 +75,7 @@ def dump(con, session_id: str, title: str, model: str) -> str:
         "",
     ]
     for m in session.history(con, session_id):
-        who = "Cliente" if m["role"] == "user" else PERSONA_NAME
+        who = "Cliente" if m["role"] == "user" else "Agente"
         lines.append(f"**{who}:** {m['content']}")
         lines.append("")
     return "\n".join(lines)

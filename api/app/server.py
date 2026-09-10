@@ -13,7 +13,7 @@ from emporio import Agent
 app = FastAPI(title="Empório da Música - atendimento")
 agent = Agent()
 
-_INDEX = Path(__file__).resolve().parent / "static" / "index.html"
+_INDEX = Path(__file__).resolve().parents[2] / "interface" / "index.html"
 
 class ChatRequest(BaseModel):
     session_id: str

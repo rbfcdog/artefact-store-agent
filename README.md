@@ -1,9 +1,9 @@
-# Tônica - AI customer-service agent for Empório da Música
+# AI customer-service agent for Empório da Música
 
-Artefact **AI Engineer – Full-Stack** technical case. Tônica is a WhatsApp-style
+Artefact **AI Engineer – Full-Stack** technical case. A WhatsApp-style
 customer-service agent for *Empório da Música*, a musical-instrument store in
-Campo Grande/MS. She answers catalog, order and store-policy questions by
-**calling tools against real data** - she never quotes a price, a stock count
+Campo Grande/MS. It answers catalog, order and store-policy questions by
+**calling tools against real data** - it never quotes a price, a stock count
 or a return policy from memory.
 
 ```mermaid
@@ -24,14 +24,15 @@ flowchart LR
     P & R --> DB
 ```
 
-![Tônica em ação - web chat](docs/screenshot.png)
+![web chat - o agente em ação](interface/docs/screenshot.png)
 
 ## Quickstart
 
 Requirements: Python ≥ 3.11, [uv](https://docs.astral.sh/uv/), an OpenAI API key.
 
 ```bash
-# 1. install
+# 1. install (all Python lives in api/ - run everything from there)
+cd api
 uv sync
 
 # 2. configure the model provider
@@ -41,17 +42,17 @@ cp .env.example .env        # then edit: OPENAI_API_KEY=sk-...
 # 3. build the database (CSVs + policy PDF -> data/emporio.db)
 uv run scripts/build_db.py
 
-# 4. run the web chat (http://localhost:8000)
+# 4. run the agent: web chat at http://localhost:8000
 uv run uvicorn app.server:app --port 8000
-
-# ...or the terminal client
-uv run python cli.py
 
 # tests (offline - no API key needed)
 uv run pytest tests/ -q
 ```
 
-Example conversations live in [`conversations/`](conversations/).
+There is also a terminal client (`uv run python cli.py`) if you prefer a CLI; the
+web chat above is the intended way to interact with the agent.
+
+Example conversations live in [`api/conversations/`](api/conversations/).
 
 ## Architecture and decisions
 
@@ -111,7 +112,7 @@ deterministic and testable offline.
 
 ### Structured data - CSVs → typed SQLite, prices always "effective"
 
-`scripts/build_db.py` is a small ETL: typed columns, one canonical DB file.
+`api/scripts/build_db.py` is a small ETL: typed columns, one canonical DB file.
 Product results always carry the **best active promotion** (original price +
 discount % + promo price together) so the agent can follow manual §6.2
 (promotional prices must be shown with the original price and discount) by
@@ -129,10 +130,11 @@ reasoning belongs in Python; the LLM phrases it.
 ### Interfaces - decoupled by contract
 
 `emporio.Agent.chat(session_id, message) -> reply` is the entire public API.
-The web UI (`app/`) and the CLI import nothing else from the package - the
-agent module has zero knowledge of HTTP or terminals. The web chat is a single
-static HTML file (no build step) styled as the store's WhatsApp channel, which
-is the scenario the manual itself describes (§7).
+The web UI and the CLI import nothing else from the package - the agent module
+has zero knowledge of HTTP or terminals. The split is physical: the Python
+side lives in `api/`, the chat page is a single static HTML file in
+`interface/` (no build step), styled as the store's WhatsApp channel, which is
+the scenario the manual itself describes (§7).
 
 ### Conversation persistence - SQLite, transcripts only
 
@@ -142,7 +144,7 @@ which keeps stored conversations clean, reviewable and cheap to reload.
 
 ### Persona and prompt strategy
 
-The persona (Tônica) follows the manual's own service guidelines: informal but
+The persona follows the manual's own service guidelines: informal but
 professional, "a friend who understands music" (§7.1), WhatsApp-length replies.
 The system prompt carries only *identity and rules* (scope: instruments only -
 accessory requests get redirected; mandatory tool check before any
@@ -160,9 +162,9 @@ deadline math against order dates.
    policy deadlines against the real current date - e.g. a *right of
    repentance* request on an old order honestly comes back as expired, with
    the next valid path offered (warranty/fabricante). Conversation 4 in
-   [`conversations/`](conversations/) shows this end-to-end.
+   [`api/conversations/`](api/conversations/) shows this end-to-end.
 3. **Customer identity**: a WhatsApp number or name is enough to locate a
-   registered customer; when names collide, Tônica confirms the city before
+   registered customer; when names collide, the agent confirms the city before
    discussing orders. Contact data is masked in tool output (LGPD §9).
 4. **Accessories** (strings, picks, cables, pedals, amps, cases) are
    out-of-scope *by store policy* - redirected politely, never "sold".
@@ -215,21 +217,22 @@ parts of it) is, I believe, exactly the skill this role should exercise.
 ## Repository layout
 
 ```
-├── cli.py                     # terminal client
-├── app/
-│   ├── server.py              # FastAPI (thin: 2 endpoints)
-│   └── static/index.html      # WhatsApp-style chat page (single file)
-├── src/emporio/
-│   ├── agent.py               # tool-calling loop (public API: Agent)
-│   ├── tools.py               # two tool schemas + dispatch
-│   ├── prompts.py             # Tônica persona / system prompt
-│   ├── store.py               # SQLite: schema, ETL, catalog/order queries
-│   ├── policies.py            # policy PDF → sections loaded into context
-│   ├── session.py             # conversation persistence
-│   └── config.py              # env/paths
-├── scripts/build_db.py        # CSVs + PDF → data/emporio.db
-├── tests/                     # offline suite (scripted LLM client)
-├── conversations/             # example interactions (case deliverable)
-├── docs/screenshot.png        # the web chat in action
-└── data/                      # case-provided sources (CSVs + policy PDF)
+├── api/                        # the Python side: agent, data, tests
+│   ├── app/server.py           # FastAPI (thin: chat + reset + index)
+│   ├── src/emporio/
+│   │   ├── agent.py            # tool-calling loop (public API: Agent)
+│   │   ├── tools.py            # two tool schemas + dispatch
+│   │   ├── prompts.py          # system prompt: persona + rules
+│   │   ├── store.py            # SQLite: schema, ETL, catalog/order queries
+│   │   ├── policies.py         # policy PDF → sections loaded into context
+│   │   ├── session.py          # conversation persistence
+│   │   └── config.py           # env/paths
+│   ├── scripts/build_db.py     # CSVs + PDF → data/emporio.db
+│   ├── cli.py                  # terminal client
+│   ├── tests/                  # offline suite (scripted LLM client)
+│   ├── conversations/          # example interactions (case deliverable)
+│   └── data/                   # case-provided sources (CSVs + policy PDF)
+└── interface/
+    ├── index.html              # WhatsApp-style chat page (single file)
+    └── docs/screenshot.png     # the web chat in action
 ```

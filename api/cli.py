@@ -5,15 +5,14 @@ import argparse
 import uuid
 
 from emporio import Agent
-from emporio.prompts import PERSONA_NAME
 
-BANNER = f"""
-Empório da Música - atendimento com {PERSONA_NAME}
+BANNER = """
+Empório da Música - agente de atendimento
 Comandos: /sair encerra · /nova inicia nova conversa
 """
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Chat com a assistente da Empório da Música")
+    parser = argparse.ArgumentParser(description="Chat com o agente de atendimento da Empório da Música")
     parser.add_argument("--session", default=uuid.uuid4().hex[:8], help="id da sessão (histórico persistido)")
     parser.add_argument("--reset", action="store_true", help="limpa o histórico da sessão antes de começar")
     args = parser.parse_args()
@@ -36,10 +35,10 @@ def main() -> None:
         if message.lower() in ("/nova", "/novo"):
             agent.reset(session_id)
             session_id = uuid.uuid4().hex[:8]
-            print(f"{PERSONA_NAME} > (nova conversa) Oi! Como posso ajudar?")
+            print("agente > (nova conversa) Oi! Como posso ajudar?")
             continue
         reply = agent.chat(session_id, message)
-        print(f"\n{PERSONA_NAME} > {reply}\n")
+        print(f"\nagente > {reply}\n")
 
     print(f"\nAté a próxima! (sessão {session_id})")
 

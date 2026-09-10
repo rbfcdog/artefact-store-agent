@@ -3,9 +3,10 @@ __pycache__/
 *.pyc
 .venv/
 *.egg-info/
-data/emporio.db
+api/data/emporio.db
 .DS_Store
 .idea/
 .vscode/
 Rodrigo*.pdf
 desafio_tecnico_ai_eng_artefact.pdf
+.pytest_cache/
