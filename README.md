@@ -9,7 +9,7 @@ or a return policy from memory.
 ```mermaid
 flowchart LR
     subgraph UI["UI layer (decoupled)"]
-        W["Web chat<br/>(FastAPI + static page)"]
+        W["Web chat<br/>(Streamlit)"]
         C["CLI"]
     end
     A["emporio.Agent<br/>persona + tool-calling loop"]
@@ -42,8 +42,11 @@ cp .env.example .env        # then edit: OPENAI_API_KEY=sk-...
 # 3. build the database (CSVs + policy PDF -> data/emporio.db)
 uv run scripts/build_db.py
 
-# 4. run the agent: web chat at http://localhost:8080
+# 4. run the API (terminal 1)
 uv run uvicorn app.server:app --port 8080
+
+# 5. run the web chat (terminal 2) - opens at http://localhost:8501
+uv run --group ui streamlit run ../interface/app.py
 
 # tests (offline - no API key needed)
 uv run pytest tests/ -q
@@ -129,12 +132,12 @@ reasoning belongs in Python; the LLM phrases it.
 
 ### Interfaces - decoupled by contract
 
-`emporio.Agent.chat(session_id, message) -> reply` is the entire public API.
-The web UI and the CLI import nothing else from the package - the agent module
-has zero knowledge of HTTP or terminals. The split is physical: the Python
-side lives in `api/`, the chat page is a single static HTML file in
-`interface/` (no build step), styled as the store's WhatsApp channel, which is
-the scenario the manual itself describes (§7).
+The web UI and the CLI import nothing from the package - the agent module has
+zero knowledge of Streamlit or terminals. The split is physical: the Python
+side lives in `api/` (FastAPI exposing `/api/chat` and `/api/reset` as JSON),
+and `interface/app.py` is a Streamlit chat that talks to the API over HTTP
+only - the same contract any other client (mobile app, WhatsApp bridge) would
+use.
 
 ### Conversation persistence - SQLite, transcripts only
 
@@ -218,7 +221,7 @@ parts of it) is, I believe, exactly the skill this role should exercise.
 
 ```
 ├── api/                        # the Python side: agent, data, tests
-│   ├── app/server.py           # FastAPI (thin: chat + reset + index)
+│   ├── app/server.py           # FastAPI (thin: chat + reset, JSON only)
 │   ├── src/emporio/
 │   │   ├── agent.py            # tool-calling loop (public API: Agent)
 │   │   ├── tools.py            # two tool schemas + dispatch
@@ -233,6 +236,6 @@ parts of it) is, I believe, exactly the skill this role should exercise.
 │   ├── conversations/          # example interactions (case deliverable)
 │   └── data/                   # case-provided sources (CSVs + policy PDF)
 └── interface/
-    ├── index.html              # WhatsApp-style chat page (single file)
+    ├── app.py                  # Streamlit web chat (talks to the API over HTTP)
     └── docs/screenshot.png     # the web chat in action
 ```

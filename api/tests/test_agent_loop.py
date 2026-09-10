@@ -81,6 +81,24 @@ def test_history_is_replayed_and_reset_clears(tmp_path):
     agent.reset("s2")
     assert session_rows(db, "s2") == []
 
+def test_provider_failure_returns_fallback_reply(tmp_path):
+    db = tmp_path / "test.db"
+    store.load_operational_data(store.connect(db))
+
+    class _FailingCompletions:
+        def create(self, *, model, messages, tools, temperature):
+            raise RuntimeError("provider down")
+
+    class _FailingChat:
+        completions = _FailingCompletions()
+
+    failing_client = SimpleNamespace(chat=_FailingChat())
+    agent = Agent(db_path=db, client=failing_client)
+    reply = agent.chat("s3", "quanto custa o violão mais barato?")
+
+    assert "Pode tentar de novo em instantes" in reply
+    assert session_rows(db, "s3")[-1]["content"] == reply
+
 def session_rows(db, session_id):
     con = store.connect(db)
     return con.execute(

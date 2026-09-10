@@ -46,31 +46,35 @@ class Agent:
                 *session.history(self.con, session_id),
             ]
 
-            for _ in range(MAX_TOOL_ROUNDS):
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    tools=tools.TOOL_SCHEMAS,
-                    temperature=0.3,
-                )
-                choice = response.choices[0].message
+            reply = ""
+            try:
+                for _ in range(MAX_TOOL_ROUNDS):
+                    response = self.client.chat.completions.create(
+                        model=self.model,
+                        messages=messages,
+                        tools=tools.TOOL_SCHEMAS,
+                        temperature=0.3,
+                    )
+                    choice = response.choices[0].message
 
-                if not choice.tool_calls:
-                    reply = choice.content or ""
-                    session.append_message(self.con, session_id, "assistant", reply)
-                    return reply
+                    if not choice.tool_calls:
+                        reply = choice.content or ""
+                        break
 
-                messages.append(choice)
-                for call in choice.tool_calls:
-                    result = tools.run_tool(self.con, call.function.name, call.function.arguments)
-                    messages.append({
-                        "role": "tool",
-                        "tool_call_id": call.id,
-                        "content": json.dumps(result, ensure_ascii=False, default=str),
-                    })
+                    messages.append(choice)
+                    for call in choice.tool_calls:
+                        result = tools.run_tool(self.con, call.function.name, call.function.arguments)
+                        messages.append({
+                            "role": "tool",
+                            "tool_call_id": call.id,
+                            "content": json.dumps(result, ensure_ascii=False, default=str),
+                        })
+            except Exception:
+                reply = ""
 
-            reply = ("Desculpa, tive um problema pra consultar nossos sistemas agora. "
-                     "Pode tentar de novo em instantes?")
+            if not reply:
+                reply = ("Desculpa, tive um problema pra consultar nossos sistemas agora. "
+                         "Pode tentar de novo em instantes?")
             session.append_message(self.con, session_id, "assistant", reply)
             return reply
 
