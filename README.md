@@ -81,43 +81,21 @@ The case specifies four agent capabilities; each maps directly to a concrete imp
 
 Example conversations covering all five paths live in [`conversations/`](conversations/).
 
-## Architecture and decisions
+## Decisões Técnicas
 
-The case asks for a messaging agent that *knows when to consult data and when
-to consult policies*. The agent has exactly two tools, one per retrieval mode,
-and both are deterministic - no embeddings, no cosine similarity, no top-k
-guesswork:
+As escolhas arquiteturais do projeto seguem o racional abaixo:
 
-- `search_store` - keyword retrieval over the CSV-derived SQLite (FTS5 plus
-  typed price/stock filters). It auto-detects what is being searched:
-  product or category, phone, e-mail, order number, tracking code or
-  customer name.
-- `load_context` - context loading, Anthropic style: the policy manual whole
-  or by full section, the full product index (every name, category and
-  effective price, so the model searches with the right key), or the active
-  promotions. Content lands verbatim in the context window instead of being
-  ranked.
-
-### Agent approach - native function calling over a tool layer (hybrid)
-
-Chosen over the alternatives the case lists:
-
-| Option | Why not (alone) |
+| Decisão | Justificativa |
 |---|---|
-| **Text-to-SQL agent** (free SQL generation) | The catalog questions are enumerable (search, price, order status). Parameterized tools give deterministic, testable queries; free-form SQL adds injection/format risk for zero user-visible gain at this catalog size. |
-| **ReAct via prompt** (model writes "Action: ...") | OpenAI-style native tool calling does the same planning loop with schema validation and structured dispatch - more reliable, less prompt scaffolding. |
-| **Pure RAG** (dump everything in context) | Prices/stock must be *exact and current*; prose retrieval can't guarantee that, and the manual itself forbids quoting prices without checking the system (§7.1). Context loading is still the right call for the 8-page manual - that's exactly what `load_context` does. |
+| **Framework(s) / abordagem do agente** | Native function calling (híbrido) com duas ferramentas determinísticas (`search_store` e `load_context`). Escolhido sobre ReAct puro (function calling nativo da OpenAI é mais confiável e valida schemas) e sobre geração de SQL (evita risco de injeção e alucinação de formato para um catálogo fixo). Sem RAG/embeddings: busca por FTS5 (palavra-chave) e context loading inteiro se provaram mais precisos. |
+| **Modelo e Provedor** | OpenAI `gpt-4o-mini` via API. Excelente custo-benefício, rápido e extremamente confiável para chamadas de ferramentas estruturadas e respostas curtas em PT-BR. Configurado via variável de ambiente, permitindo troca fácil. |
+| **Interface de interação** | UI simples via **Streamlit** (chat web) e uma CLI secundária. A arquitetura é totalmente **desacoplada**: a lógica do agente roda em um servidor FastAPI e o Streamlit apenas consome endpoints HTTP JSON, simulando o contrato real de um backend que atenderia WhatsApp ou app mobile. |
+| **Persistência do histórico de conversa** | Implementado via **SQLite** (`session.py`). Mantém o histórico das últimas interações na sessão, salvando apenas a transcrição limpa (ocultando os tool calls internos) para que o contexto enviado ao LLM permaneça leve, rápido e coerente ao longo da conversa. |
+| **Tratamento dos dados** | Script ETL Python converte os 6 CSVs em um banco tipado com **FTS5** (busca full-text). Uma decisão crítica de tratamento: **cálculos de prazo e expiração de políticas são feitos em Python**, nunca pelo modelo (LLMs erram aritmética de datas). Resultados de pedidos já embutem se estão dentro do prazo. Preços são servidos já cruzando descontos ativos. |
 
-The loop (`emporio/agent.py`) is deliberately small: replay persisted history →
-call the model with tool schemas → execute tool calls → feed results back →
-repeat up to a bound → persist the final reply.
+### Detalhes complementares
 
-### Model and provider - OpenAI `gpt-4o-mini`
-
-Cheap, fast, and reliable at Portuguese + tool calling - the workload here is
-short turns with structured tool output, not deep reasoning. The model is a
-config value (`OPENAI_MODEL`), so swapping providers is a one-line change; the
-tests run against a scripted client, so they don't depend on any provider.
+Abaixo estão os detalhes aprofundados sobre a implementação das ferramentas e testes.
 
 ### Manual: context loading, not ranking
 
